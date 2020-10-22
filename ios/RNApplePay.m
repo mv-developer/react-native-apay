@@ -93,6 +93,10 @@ RCT_EXPORT_METHOD(complete:(NSNumber *_Nonnull)status promiseWithResolver:(RCTPr
     if (@available(iOS 12.0, *)) {
         [supportedNetworksMapping setObject:PKPaymentNetworkMaestro forKey:@"maestro"];
     }
+
+    if (@available(iOS 12.1.1, *)) {
+        [supportedNetworksMapping setObject:PKPaymentNetworkMada forKey:@"mada"];
+    }
     
     NSArray *supportedNetworksProp = props[@"supportedNetworks"];
     NSMutableArray *supportedNetworks = [NSMutableArray array];
@@ -126,7 +130,13 @@ RCT_EXPORT_METHOD(complete:(NSNumber *_Nonnull)status promiseWithResolver:(RCTPr
     self.completion = completion;
     if (self.requestPaymentResolve != NULL) {
         NSString *paymentData = [[NSString alloc] initWithData:payment.token.paymentData encoding:NSUTF8StringEncoding];
-        self.requestPaymentResolve(paymentData);
+        NSString *displayName = payment.token.paymentMethod.displayName;
+        NSString *network = payment.token.paymentMethod.network;
+        NSMutableDictionary *response = [[NSMutableDictionary alloc]init];
+        [response setValue:paymentData forKey:@"paymentData"];
+        [response setValue:displayName forKey:@"displayName"];
+        [response setValue:network forKey:@"network"];
+        self.requestPaymentResolve(response);
         self.requestPaymentResolve = NULL;
     }
 }
